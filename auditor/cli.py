@@ -1,21 +1,31 @@
 import sys
 from auditor.parser import parse_pom
+from auditor.rules import check_repositories, check_versions
 
 
 def main():
-    if len(sys.argv) < 2:
+    if (len(sys.argv) < 2):
         print("Usage: python -m auditor.cli <path-to-pom.xml>")
         sys.exit(1)
 
     pom_path = sys.argv[1]
     deps, repos = parse_pom(pom_path)
 
-    print(f"Found {len(deps)} dependencies and {len(repos)} custom repositories:\n")
-    for r in repos:
-        print(f" [REPO] {r.id} -> {r.url}")
-    for d in deps:
-        print(f" [DEP]  {d.group_id}:{d.artifact_id} (version: {d.version})")
+    print(f"Parsed {len(deps)} dependencies and {len(repos)} repositories.\n")
+
+    findings = []
+    findings.extend(check_repositories(repos))
+    findings.extend(check_versions(deps))
+
+    if (findings == []):
+        print("No security issues detected.")
+        sys.exit(0)
+
+    print(f"Found {len(findings)} potential supply-chain issues:\n")
+    for f in findings:
+        print(f"[{f.severity}] {f.rule_id} | {f.target}")
+        print(f"  -> {f.message}\n")
 
 
-if __name__ == "__main__":
+if (__name__ == "__main__"):
     main()

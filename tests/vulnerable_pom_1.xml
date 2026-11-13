@@ -1,0 +1,48 @@
+<!--
+ Issues with this POM: 
+ 
+ 1) HTTP repo URL (no TLS) and custom repo for the insecure-legacy-repo (HIGH and MEDIUM).
+ 2) Uses LATEST instead of a pinned version for the guava dependency (HIGH).
+ 3) Uses a version range for the junit dependency (MEDIUM).
+ This also tests if the version resolution from the properties variables 
+ works as intended.
+ -->
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>ch.ethz.sec</groupId>
+    <artifactId>test-app</artifactId>
+    <version>1.0.0</version>
+
+    <properties>
+        <spring.version>5.3.20</spring.version>
+    </properties>
+
+    <repositories>
+        <repository>
+            <id>insecure-legacy-repo</id>
+            <url>http://repo.mycompany.org/maven2</url>
+        </repository>
+    </repositories>
+
+    <dependencies>
+        <!-- Should resolve cleanly to 5.3.20 and NOT trigger a warning -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>LATEST</version>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>[4.12,4.13.2)</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>
